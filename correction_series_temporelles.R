@@ -18,6 +18,7 @@ base = cbind(brent, eiaData)
 
 # Formater «base» en trimestrielle
 base = apply.quarterly(base, mean)
+index(base) = as.Date(format(index(brent), "%Y-%m-01"))
 
 library(lubridate)
 index(base) = index(base) - months(2)
