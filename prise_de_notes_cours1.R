@@ -241,7 +241,104 @@ mydata$poids
 mydata[ mydata$poids >= 100, ]
 mydata[ mydata$poids >= 100, "poids"]
 
+data = read.csv("input/eia_data.csv")
+brent = read.table('input/brent.csv',sep = ",", header = TRUE)
+
+dim(brent)
+dim(data)
+
+res = cbind(data, brent)
+res = res[,2:ncol(res)]
+
+brent[,!colnames(brent) %in% c("date")]
+colnames(res)
 
 
+# Créer un DF et transformer une colonne en facteur 
+taille   = c(121, 156, 194)
+poids  = c(67, 78, 235)
+sexe    = c("Homme","Femme","Homme")
+mydata = data.frame(taille = taille, poids = poids, sexe = sexe)
+
+mydata$sexe = as.factor(mydata$sexe)
+
+rbind(mydata, c(150, 67, "Femmes"))
+
+
+
+apply(data[,2:ncol(data)], 2, function(x) mean(x))
+apply(data[,2:ncol(data)], 1, function(x) mean(x))
+
+data["meanCols"] = apply(data[,2:ncol(data)], 1, function(x) mean(x))
+
+library(zoo)
+data_ma15 = rollapply(data[,2:ncol(data)], 15, function(x) mean(x))
+
+
+my_ts = ts(1:100, start = c(1980, 2), frequency = 12)
+
+library(xts)
+dates = as.Date(c('2024-01-01', '2024-02-01', '2024-03-01', '2024-04-01', '2024-05-01'))
+my_xts <- xts(1:5, order.by = dates)
+
+
+class(my_ts)
+class(my_xts)
+
+window(my_ts, start=c(1984, 10), end=c(1987,4))
+my_xts["2024-03-01/"]
+head(my_xts)
+
+lag(my_ts, 5)
+lag(my_xts, -3)
+
+
+# Importer les fichiers brent.csv et eia_data.csv depuis le repertoire input et renommer les colonnes
+data = read.csv("input/eia_data.csv")
+colnames(data) = c("date","cocpopec","copsopec","paprnonopec","papropec","paprrus","paprus","pascoecd","patcchn","patcnonoecd","patcoecd","patcwld")
+
+brent = read.table('input/brent.csv',sep = ",", header = TRUE)
+colnames(brent) = c("date","brent")
+
+dateBrent = as.Date(brent$date, format = "%d/%m/%Y")
+brent_xts = xts(brent[,-1], order.by = dateBrent)
+colnames(brent_xts) = "brent"
+
+dateData = as.Date(data$date, format = "%d/%m/%Y")
+data_xts = xts(data[,-1], order.by = dateData)
+
+base_xts = cbind(brent_xts, data_xts)
+
+# Formater «base» en trimestrielle
+base_xts_quarterly = apply.quarterly(base_xts, mean) 
+dim(base_xts_quarterly)
+
+library(lubridate)
+index(base_xts_quarterly) = as.Date(format(index(base_xts_quarterly) - months(2), "%Y-%m-01"))
+
+
+base_xts_quarterly = data.frame(date=index(base_xts_quarterly), base_xts_quarterly)
+write.csv(base_xts_quarterly,"output/baseDL.csv", row.names = FALSE)
+
+
+# library(magrittr)
+# format(index(base_xts_quarterly) - months(2), "%Y-%m-01") %>% as.Date
+
+
+headers = NULL
+if (!is.null(taceconomics.apikey())) {
+  headers <- c(headers, list("Authorization"=paste("Bearer", taceconomics.apikey())))
+}
+
+library(httr)
+url = "https://api.taceconomics.com/data/DS/JPCPACR_R/WLD?api_key=sk_t8LMzhebMQNpwPpH0-s60NTuw4AHAnsfOa35z6zSUHM" 
+req = httr::VERB("GET", url)
+if( httr::status_code(req) == 200 ) {
+  data = httr::content(req, "text", encoding="UTF-8")
+  data = jsonlite::fromJSON(data)
+  return(data)
+}
+
+data$data
 
 
