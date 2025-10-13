@@ -3,7 +3,7 @@
 #########################################################################
 
 # 1 - importer le fichier baseR.csv du repertoire /output (0.5pts)
-# Si vous n'avez pas réussis à le faire dans la partie R, partir du fichier output/baseR_help.csv
+# Si vous n'avez pas réussis à le faire dans la partie R, partir du fichier pré-enregistré output/baseR_help.csv
 
 
 # 2 - Transformer ces données en série temporelle (0.5pts)
@@ -33,6 +33,7 @@
 
 # Faire une fonction avec en parametre le range de valeur à deviner (ici entre 0 et 100)
 # Et retourner le nombre de tentatives
+
 
 
 
