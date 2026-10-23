@@ -320,11 +320,26 @@ base.apply(lambda x: x.mean(),axis=1)
 ## Exercice
 # 1 - rechargez brent.csv et eia_data.csv
 # 2 - Transformez les en serie temporelle
-# 3 - Combinez les DataFrame dans une meme base avec pd.merge
+# 3 - Combinez les DataFrame dans une meme base avec join
 # 4 - Ajoutez des colonnes à la base
-     # - prix du brent lagé de 6 mois
+     # - prix du brent lagué de 6 mois
      # - Ecart type mobile du prix du brent sur 12 mois
      # - Calculer le taux de croissance mensuel glissant moyen sur 6 mois
      # - Calculer l'ecart entre le prix du brent et sa moyenne mobile sur 12 mois
 
+brent = pd.read_csv("input/brent.csv")
+brent.date = pd.to_datetime(brent.date, format = "%d/%m/%Y")
+brent.set_index("date", inplace = True)
+
+eia_data = pd.read_csv("input/eia_data.csv")
+eia_data.date = pd.to_datetime(eia_data.date, format = "%d/%m/%Y")
+eia_data.set_index("date", inplace = True)
+
+base = brent.join(eia_data)
+
+
+base['brentl6'] = base["DS.OILBREN.WLD.COLLAPSE.M"].shift(6)
+base['brent_ecart_type_12'] = base["DS.OILBREN.WLD.COLLAPSE.M"].rolling(window=12).std()
+base['brentgrowth6m'] = ((base["DS.OILBREN.WLD.COLLAPSE.M"]/base["DS.OILBREN.WLD.COLLAPSE.M"].shift(1)-1)*100).rolling(window=6).mean()
+base["gapbrent"] = base["DS.OILBREN.WLD.COLLAPSE.M"] - base["DS.OILBREN.WLD.COLLAPSE.M"].rolling(12).mean()
 
