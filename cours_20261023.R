@@ -1,4 +1,5 @@
 library(dplyr)
+library(xts)
 
 a = 1
 a <- 1
@@ -105,5 +106,21 @@ fonction_test <- function(a, b=10) {
 
 test = fonction_test(a=10, b = 19)
 
+
+eia_data = read.table("input/eia_data.csv", sep=',', header = T)
+class(eia_data)
+eia_data[0:2,0:2]
+colnames(eia_data)
+eia_data_xts = xts(eia_data[,-1], order.by = as.Date(eia_data$date, format = "%d/%m/%Y"))
+head(eia_data_xts)
+
+eia_data_xts$EIA.COPC.REG_OPEC
+eia_data_xts[,"EIA.COPC.REG_OPEC"]
+
+eia_data_xts[eia_data_xts$EIA.COPC.REG_OPEC<30,c(1,5)]
+
+
+apply(eia_data_xts, 2, function(x) mean(x) )
+rollapply(eia_data_xts$EIA.COPC.REG_OPEC, 10, function(x) mean(x))
 
 
